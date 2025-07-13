@@ -1,0 +1,64 @@
+# Task 3 — Locating Directories using Gobuster (Answers + Documentation)
+
+## Objective
+
+Use **Gobuster**, a directory brute-forcing tool, to discover hidden or unlinked directories on the web server hosted at port `3333`. The goal is to find an **upload form** that may allow us to gain a foothold on the system.
+
+## Tool: Gobuster
+
+**Gobuster** is a command-line tool used to brute-force:
+
+* Directories/files on websites
+* DNS subdomains
+* Virtual hostnames
+
+For this task, we focus on brute-forcing **directories** on a web server.
+
+## Command Syntax
+gobuster dir -u http://<MACHINE_IP>:3333 -w /usr/share/wordlists/dirbuster/directory-list-1.0.txt
+
+### Explanation of Flags
+
+| Flag  | Description                                              |
+| ----- | -------------------------------------------------------- |
+| `dir` | Directory/file brute-forcing mode                        |
+| `-u`  | Target URL                                               |
+| `-w`  | Path to the wordlist                                     |
+| `-e`  | (Optional) Print full URLs in output                     |
+| `-t`  | (Optional) Number of concurrent threads (default: 10)    |
+| `-x`  | (Optional) File extensions to search (e.g. `.php,.html`) |
+
+
+## Example Command (Replace with your machine IP)
+gobuster dir -u http://10.10.47.197:3333 -w /usr/share/wordlists/dirbuster/directory-list-1.0.txt -e
+
+## Sample Output (Trimmed)
+/images               (Status: 301)
+/css                  (Status: 301)
+/js                   (Status: 301)
+/internal             (Status: 301)
+
+* The `/internal` directory is not a standard asset folder.
+* Visiting `http://<MACHINE_IP>:3333/internal` reveals a file **upload form**.
+
+## Task 3 Answer
+
+| Question                                                | ✅ Answer     |
+| ------------------------------------------------------- | ------------ |
+| **What is the directory that has an upload form page?** | `/internal/` |
+
+
+## Repository Folder Suggestion
+
+You can include the output inside your GitHub repo:
+
+
+* Use longer wordlists for deeper scans (`directory-list-2.3-medium.txt`)
+* Scan for file extensions too:
+  gobuster dir -u http://<MACHINE_IP>:3333 -w /usr/share/wordlists/dirb/common.txt -x php,html,txt
+  
+
+## Summary
+
+* The directory `/internal/` contains an **upload form**, which is a key attack vector.
+* This will be used in the next stage: **Compromising the Webserver**.
