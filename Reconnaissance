@@ -1,0 +1,63 @@
+# Task 2: Reconnaissance (TryHackMe)
+
+>  Room: [Vulnversity](https://tryhackme.com/room/vulnversity)  
+>  Task: 2 — Reconnaissance  
+>  Tool: Nmap  
+>  Difficulty: Easy  
+
+## Tools Used
+
+- Nmap — Network scanning tool
+
+
+## Task Objective
+
+Use Nmap to scan the target machine and gather information such as:
+
+- Open ports
+- Running services and versions
+- Operating system fingerprinting
+- Useful flags for scanning
+
+##  Scan Command
+
+To perform the version scan and identify open ports:
+nmap -sV <MACHINE_IP>
+
+
+# Example Nmap Output (Simulated)
+PORT     STATE SERVICE       VERSION
+21/tcp   open  ftp           vsftpd 3.0.3
+22/tcp   open  ssh           OpenSSH 7.6p1 Ubuntu 4ubuntu0.3 (Ubuntu Linux; protocol 2.0)
+25/tcp   open  smtp          Postfix smtpd
+80/tcp   open  http          Apache httpd 2.4.29 ((Ubuntu))
+139/tcp  open  netbios-ssn   Samba smbd 3.X - 4.X (workgroup: WORKGROUP)
+3128/tcp open  http-proxy    Squid http proxy 4.10
+3333/tcp open  http          Apache httpd 2.4.29
+
+# You can save this output to a file:
+nmap -sV <MACHINE_IP> -oN nmap/full_scan.txt
+
+# Answers
+|  **Question**                                                       |  **Answer**                                                                                                                             |
+| --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| **Scan the box; how many ports are open?**                            | `6`<br> During the Nmap scan, 6 TCP ports were found open and actively running services.                                               |
+| **What version of the squid proxy is running on the machine?**        | `4.10`<br> This was identified via version detection (`-sV`), showing Squid HTTP Proxy version 4.10 running on port `3128`.            |
+| **How many ports will Nmap scan if the flag `-p-400` was used?**      | `400`<br> The `-p-400` flag tells Nmap to scan ports from 1 to 400 (inclusive), totaling **400** ports.                                |
+| **What is the most likely operating system this machine is running?** | `Ubuntu`<br> Based on the Nmap service banners (e.g., OpenSSH and Apache showing Ubuntu tags), the host is most likely running Ubuntu. |
+| **What port is the web server running on?**                           | `3333`<br> Apache or another web service was detected on TCP port `3333`.                                                              |
+| **What is the flag for enabling verbose mode using Nmap?**            | `-v`<br> The `-v` flag enables verbose output, providing more detailed scan information during execution.                              |
+
+nmap -sC -sV -A -p- -Pn <MACHINE_IP> -oN nmap/full_scan.txt
+#  Nmap Flag Reference
+ 
+| Flag              | Description                                   |
+| ----------------- | --------------------------------------------- |
+| `-sV`             | Version detection                             |
+| `-p <x>` or `-p-` | Port scan (specific or full range)            |
+| `-Pn`             | No host discovery (treat all hosts as online) |
+| `-A`              | OS detection + scripts + traceroute           |
+| `-sC`             | Default script scan                           |
+| `-v`              | Verbose output                                |
+| `-sU`             | UDP scan                                      |
+| `-sS`             | SYN scan (stealthy)                           |
